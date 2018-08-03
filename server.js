@@ -70,8 +70,8 @@ app.put('/shopping-list/:id', jsonParser, (req, res) => {
   }
   console.log(`Updating shopping list item \`${req.params.id}\``);
   ShoppingList.update({
-    id: req.params.id,
     name: req.body.name,
+    id: req.params.id,
     budget: req.body.budget
   });
   res.status(204).end();
@@ -103,6 +103,32 @@ app.post('/recipes', jsonParser, (req, res) => {
   }
   const item = Recipes.create(req.body.name, req.body.ingredients);
   res.status(201).json(item);
+});
+
+app.put("/recipes/:id", jsonParser, (req, res) => {
+  const requiredFields = ["name", "id", "ingredients"];
+  for (let i = 0; i < requiredFields.length; i++) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Sorry, you're missing \`${field}\` in the request body`;
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
+  if (req.params.id !== req.body.id) {
+    const message = ` Sorry, the request path id (${req.params.id}) does not match the request body id (${req.body.id})`
+    console.error(message);
+    return res.status(400).send(message);
+  }
+
+  console.log(`Updating \`${req.params.id}\` recipe`);
+  Recipes.update({
+    name: req.body.name,
+    id: req.body.id,
+    ingredients: req.body.ingredients
+  });
+  res.status(204).end();
 });
 
 app.delete('/recipes/:id', (req, res) => {
